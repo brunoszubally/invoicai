@@ -98,8 +98,8 @@ async def process_pdf():
     if file.content_type != 'application/pdf':
         return jsonify({"error": "Invalid file type. Please upload a PDF"}), 400
 
-    # Convert the PDF file to bytes and process
-    pdf_bytes = io.BytesIO(await file.read())
+    # Convert the PDF file to bytes and process (no need for await here)
+    pdf_bytes = io.BytesIO(file.read())
     captured_output = capture_output(pdf_bytes)
 
     # Send the captured output to OpenAI assistant
