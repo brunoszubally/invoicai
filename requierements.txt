@@ -1,0 +1,4 @@
+quart
+azure-ai-formrecognizer
+openai
+python-dotenv
