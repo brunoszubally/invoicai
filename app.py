@@ -3,6 +3,7 @@ import io
 import time
 import openai
 import sys
+import json
 from quart import Quart, request, jsonify
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.formrecognizer import DocumentAnalysisClient
@@ -122,8 +123,14 @@ async def process_pdf():
         assistant_response = response.data[0].content[0].text.value
         cleaned_response = assistant_response.replace("```json", "").rstrip("`").strip()
 
-        # Return the cleaned response as JSON
-        return jsonify({"assistant_response": cleaned_response})
+        # Attempt to parse the cleaned response as JSON
+        try:
+            formatted_response = json.loads(cleaned_response)
+        except json.JSONDecodeError:
+            return jsonify({"error": "Failed to parse assistant response as JSON"}), 500
+
+        # Return the properly formatted JSON response
+        return jsonify(formatted_response)
     else:
         return jsonify({"error": "No response from assistant"}), 500
 
