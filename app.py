@@ -88,15 +88,18 @@ def check_status(run_id, thread_id):
 # API endpoint to handle PDF file upload and return JSON
 @app.route('/process-pdf', methods=['POST'])
 async def process_pdf():
-    if 'file' not in request.files:
+    # Meg kell várni a request.files-t
+    files = await request.files
+
+    if 'file' not in files:
         return jsonify({"error": "No file uploaded"}), 400
 
-    file = request.files['file']
+    file = files['file']
     if file.content_type != 'application/pdf':
         return jsonify({"error": "Invalid file type. Please upload a PDF"}), 400
 
     # Convert the PDF file to bytes and process
-    pdf_bytes = io.BytesIO(file.read())
+    pdf_bytes = io.BytesIO(await file.read())
     captured_output = capture_output(pdf_bytes)
 
     # Send the captured output to OpenAI assistant
@@ -122,6 +125,7 @@ async def process_pdf():
         return jsonify({"assistant_response": cleaned_response})
     else:
         return jsonify({"error": "No response from assistant"}), 500
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # Use PORT environment variable or default to 5000
